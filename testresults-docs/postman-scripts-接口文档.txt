@@ -1,0 +1,76 @@
+接口文档：d:\Desktop\skill-demo-docs\接口文档.doc
+
+建议在 Postman 环境变量中设置：
+- baseUrl，例如：http://127.0.0.1:8080
+- token（可选）：如需鉴权，可在请求头加 Authorization: Bearer {{token}}
+
+============================================================
+接口 1：根据表名查询所有字段清单
+Method: POST
+URL: {{baseUrl}}/sql/cols?tableName={{tableName}}
+Content-Type: application/json
+
+[Pre-request Script]
+pm.variables.set('tableName', pm.variables.get('tableName') || 'table_name_demo');
+
+[Tests]
+pm.test('HTTP 状态码为 200', function () {
+  pm.response.to.have.status(200);
+});
+
+pm.test('响应为 JSON', function () {
+  pm.response.to.be.json;
+});
+
+pm.test('响应结构包含 success/msg/data 且类型正确', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData).to.have.property('success');
+  pm.expect(jsonData).to.have.property('msg');
+  pm.expect(jsonData).to.have.property('data');
+  pm.expect(jsonData.success).to.be.a('boolean');
+  pm.expect(jsonData.msg).to.be.a('string');
+  pm.expect(jsonData.data).to.be.an('object');
+});
+
+pm.test('业务成功：success 为 true', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.success).to.eql(true);
+});
+
+============================================================
+接口 2：通用执行 SQL
+Method: POST
+URL: {{baseUrl}}/sql/execute
+Content-Type: application/json
+Body (raw, JSON) 示例：
+{
+  "params": {},
+  "sql": "{{sql}}"
+}
+
+[Pre-request Script]
+pm.variables.set('sql', pm.variables.get('sql') || 'SELECT 1');
+
+[Tests]
+pm.test('HTTP 状态码为 200', function () {
+  pm.response.to.have.status(200);
+});
+
+pm.test('响应为 JSON', function () {
+  pm.response.to.be.json;
+});
+
+pm.test('响应结构包含 success/msg/data 且类型正确', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData).to.have.property('success');
+  pm.expect(jsonData).to.have.property('msg');
+  pm.expect(jsonData).to.have.property('data');
+  pm.expect(jsonData.success).to.be.a('boolean');
+  pm.expect(jsonData.msg).to.be.a('string');
+});
+
+pm.test('业务成功：success 为 true', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.success).to.eql(true);
+});
+

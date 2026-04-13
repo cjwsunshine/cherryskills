@@ -1,0 +1,86 @@
+接口文档：d:\Desktop\skill-demo-docs\接口文档.doc
+
+建议 Postman 环境变量：
+- baseUrl：接口域名/网关（例如 http://127.0.0.1:8080）
+- token（可选）：鉴权令牌（如需鉴权，在请求头添加 Authorization: Bearer {{token}}）
+- tableName（可选）：/sql/cols 的表名
+- sql（可选）：/sql/execute 的 SQL 字符串
+
+通用断言假设（来自接口文档示例）：
+- 响应为 JSON
+- 响应体包含：success(boolean)、msg(string)、data(object)
+
+============================================================
+接口 1：根据表名查询所有字段清单
+Method: POST
+URL: {{baseUrl}}/sql/cols?tableName={{tableName}}
+Headers:
+- Content-Type: application/json
+- Authorization: Bearer {{token}}（如需）
+
+[Pre-request Script]
+pm.variables.set('tableName', pm.variables.get('tableName') || 'users');
+
+[Tests]
+pm.test('HTTP 状态码为 200', function () {
+  pm.response.to.have.status(200);
+});
+
+pm.test('响应为 JSON', function () {
+  pm.response.to.be.json;
+});
+
+pm.test('响应结构包含 success/msg/data 且类型正确', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData).to.have.property('success');
+  pm.expect(jsonData).to.have.property('msg');
+  pm.expect(jsonData).to.have.property('data');
+  pm.expect(jsonData.success).to.be.a('boolean');
+  pm.expect(jsonData.msg).to.be.a('string');
+  pm.expect(jsonData.data).to.be.an('object');
+});
+
+pm.test('业务成功：success 为 true', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.success).to.eql(true);
+});
+
+============================================================
+接口 2：通用执行 SQL
+Method: POST
+URL: {{baseUrl}}/sql/execute
+Headers:
+- Content-Type: application/json
+- Authorization: Bearer {{token}}（如需）
+Body (raw, JSON)：
+{
+  "params": {},
+  "sql": "{{sql}}"
+}
+
+[Pre-request Script]
+pm.variables.set('sql', pm.variables.get('sql') || 'SELECT 1');
+
+[Tests]
+pm.test('HTTP 状态码为 200', function () {
+  pm.response.to.have.status(200);
+});
+
+pm.test('响应为 JSON', function () {
+  pm.response.to.be.json;
+});
+
+pm.test('响应结构包含 success/msg/data 且类型正确', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData).to.have.property('success');
+  pm.expect(jsonData).to.have.property('msg');
+  pm.expect(jsonData).to.have.property('data');
+  pm.expect(jsonData.success).to.be.a('boolean');
+  pm.expect(jsonData.msg).to.be.a('string');
+});
+
+pm.test('业务成功：success 为 true', function () {
+  var jsonData = pm.response.json();
+  pm.expect(jsonData.success).to.eql(true);
+});
+
